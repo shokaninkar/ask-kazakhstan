@@ -11,7 +11,7 @@ export const runtime = "nodejs" // in-memory rate-limit map needs a long-lived r
 const MAX_QUESTION_LEN = 240
 const MAX_PERSONAS = 20
 const RATE_LIMIT_PER_MIN = 10
-const GROQ_MODEL = "llama-3.3-70b-versatile"
+const GROQ_MODEL = "openai/gpt-oss-120b"
 const PER_CALL_TIMEOUT_MS = 20_000
 
 export interface PersonaResponse {
@@ -113,6 +113,7 @@ async function runOnePersona(
       max_tokens: 220,
       temperature: 0.9,
       response_format: { type: "json_object" },
+      reasoning_effort: "low",
     },
     { timeout: PER_CALL_TIMEOUT_MS }
   )

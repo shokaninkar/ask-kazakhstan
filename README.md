@@ -7,7 +7,7 @@ Each persona has a region, age bracket, gender, ethnicity, occupation, education
 ## How it works
 
 - `src/lib/personas.ts` defines the personas; `src/lib/oblasts.ts` and `src/data/kazakhstan-oblasts.json` hold the regions and their GeoJSON.
-- `src/app/api/ask/route.ts` fans the question out to Llama 3.3 70B on Groq, one call per persona, with a 20-second timeout per call and JSON-only output.
+- `src/app/api/ask/route.ts` fans the question out to GPT-OSS 120B on Groq, one call per persona, with a 20-second timeout per call and JSON-only output.
 - `src/components/KazakhstanMap.tsx` renders the map with react-leaflet and colours regions by sentiment.
 
 Guardrails: questions are capped at 240 characters, requests are rate-limited per IP (10 a minute), and the user's question is delimited as untrusted data in the prompt so personas can refuse in character rather than follow injected instructions.
@@ -28,4 +28,4 @@ GROQ_API_KEY=...
 
 ## Stack
 
-Next.js 16 (App Router), TypeScript, Groq (Llama 3.3 70B), react-leaflet, Leaflet, GeoJSON, Tailwind CSS.
+Next.js 16 (App Router), TypeScript, Groq (GPT-OSS 120B), react-leaflet, Leaflet, GeoJSON, Tailwind CSS.
