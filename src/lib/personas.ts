@@ -21,7 +21,26 @@ export interface Persona {
   income_kzt: number
   urban: boolean
   speaks_kazakh: boolean
+  outlook: string
+  trust_in_government: string
+  news_source: string
 }
+
+// Drawn independently of ethnicity, so a persona's stance can't be predicted from
+// their ethnicity alone. Real opinion splits cut across ethnic lines.
+const OUTLOOKS = [
+  "optimistic about the country's direction",
+  "pragmatic: judges every policy by what it does to prices and wages",
+  "skeptical of big announcements after seeing many reforms stall",
+  "worried about the future and their children's prospects",
+  "proud of recent progress but impatient for more",
+  "traditional: values stability, family and custom over change",
+]
+const TRUST_LEVELS = ["low", "medium", "high"]
+const NEWS_SOURCES = [
+  "Telegram channels", "state TV news", "Instagram and TikTok", "friends and family chats on WhatsApp",
+  "Russian-language TV", "independent news sites", "relatives working abroad", "colleagues at work",
+]
 
 const NAMES: Record<string, Record<string, string[]>> = {
   Kazakh: {
@@ -151,14 +170,30 @@ export interface PersonaFilters {
   occupations?: string[]
 }
 
+// Regions for `count` personas: every region in the pool gets one before any region
+// gets a second, so the map fills evenly. Extra slots (or a short list when count is
+// below the pool size) are drawn by population.
+function assignOblasts(rng: Rng, pool: Oblast[], count: number): Oblast[] {
+  const remaining = [...pool]
+  const picked: Oblast[] = []
+  while (picked.length < count && remaining.length) {
+    const o = weightedPick(rng, remaining, remaining.map(r => r.population))
+    picked.push(o)
+    remaining.splice(remaining.indexOf(o), 1)
+  }
+  while (picked.length < count) picked.push(weightedPick(rng, pool, pool.map(o => o.population)))
+  return picked
+}
+
 export function generatePersonas(count: number, filters: PersonaFilters, seed: number): Persona[] {
   const rng = mulberry32(seed)
   const oblastPool = filters.oblastIds?.length
     ? OBLASTS.filter(o => filters.oblastIds!.includes(o.id))
     : OBLASTS
+  const oblasts = assignOblasts(rng, oblastPool, count)
 
   return Array.from({ length: count }, (_, i) => {
-    const oblast = weightedPick(rng, oblastPool, oblastPool.map(o => o.population))
+    const oblast = oblasts[i]
 
     const ethPool = filters.ethnicities?.length ? filters.ethnicities : ETHNICITIES
     const ethWeights = ethPool.map(e =>
@@ -190,6 +225,9 @@ export function generatePersonas(count: number, filters: PersonaFilters, seed: n
       ? (oblast.kazakh_speakers_pct - 50) / 100
       : 0.4
     const speaks_kazakh = rng() < Math.max(0, kazProb)
+    const outlook = OUTLOOKS[pickInt(rng, OUTLOOKS.length)]
+    const trust_in_government = TRUST_LEVELS[pickInt(rng, TRUST_LEVELS.length)]
+    const news_source = NEWS_SOURCES[pickInt(rng, NEWS_SOURCES.length)]
 
     return {
       id: `persona_${i}`,
@@ -204,6 +242,9 @@ export function generatePersonas(count: number, filters: PersonaFilters, seed: n
       income_kzt,
       urban,
       speaks_kazakh,
+      outlook,
+      trust_in_government,
+      news_source,
     }
   })
 }

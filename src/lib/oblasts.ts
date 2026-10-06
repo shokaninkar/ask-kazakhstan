@@ -115,6 +115,19 @@ export const OBLASTS: Oblast[] = [
     key_issues: ["emigration of Russians", "mine safety", "water resources from Irtysh", "language rights", "border relations with China"],
   },
   {
+    // Split from East Kazakhstan in June 2022. Population and ethnic shares: 2026 estimate
+    // (citypopulation.de / Wikipedia). Language, education, unemployment and income are
+    // approximations carried over from pre-split East Kazakhstan, adjusted for the higher Kazakh share.
+    id: "abai", name: "Abai", capital: "Semey",
+    population: 596000, urban_pct: 58,
+    kazakh_pct: 79, russian_pct: 16, other_pct: 5,
+    kazakh_speakers_pct: 78, higher_edu_pct: 22, unemployment_pct: 5.0, median_income_kzt: 175000,
+    lat: 50.41, lng: 80.23,
+    dominant_industry: "Livestock, Agriculture, Light industry",
+    industry_tags: ["agriculture", "industry"],
+    key_issues: ["health legacy of the Semipalatinsk test site", "rural depopulation", "road conditions", "livestock prices", "jobs for young people in Semey"],
+  },
+  {
     id: "jambyl", name: "Jambyl", capital: "Taraz",
     population: 1100000, urban_pct: 44,
     kazakh_pct: 72, russian_pct: 8, other_pct: 20,

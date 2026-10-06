@@ -25,8 +25,16 @@ interface PersonaResponse {
   income_kzt: number
   urban: boolean
   speaks_kazakh: boolean
+  outlook?: string
   sentiment: "positive" | "negative" | "neutral"
   response: string
+  appearance?: string
+}
+
+// Illustrated avatar, deterministic per persona. DiceBear is keyless and free.
+function avatarUrl(r: PersonaResponse): string {
+  const seed = encodeURIComponent(`${r.name}-${r.oblastId}-${r.age_bracket}`)
+  return `https://api.dicebear.com/9.x/notionists/svg?seed=${seed}&backgroundColor=1e293b`
 }
 
 interface SentimentBucket {
@@ -54,7 +62,7 @@ const SENTIMENT_COLORS: Record<string, string> = {
 const SENTIMENT_ICONS: Record<string, string> = {
   positive: "✅",
   negative: "❌",
-  neutral: "⚠️",
+  neutral: "⚖️",
 }
 
 function formatKzt(n: number): string {
@@ -121,7 +129,7 @@ export default function Home() {
   const [oblastSentiment, setOblastSentiment] = useState<Record<string, SentimentBucket>>({})
   const [activeOblast, setActiveOblast] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [personaCount, setPersonaCount] = useState(12)
+  const [personaCount, setPersonaCount] = useState(20)
   const [seed, setSeed] = useState<number | null>(null)
   const [stats, setStats] = useState<{ succeeded: number; failed: number; requested: number } | null>(null)
   const [filters, setFilters] = useState<{
@@ -355,7 +363,7 @@ export default function Home() {
               <div className="flex flex-col items-center justify-center h-full text-center px-6">
                 <div className="text-4xl mb-4">🗺️</div>
                 <p className="text-slate-400 font-medium mb-2">Ask a question to see responses</p>
-                <p className="text-sm text-slate-600 max-w-sm">AI generates synthetic personas from across Kazakhstan&apos;s 20 regions, weighted by real population and demographic data.</p>
+                <p className="text-sm text-slate-600 max-w-sm">AI generates one synthetic persona for each of Kazakhstan&apos;s 20 regions, built from real population and demographic data.</p>
                 <p className="text-xs text-slate-700 mt-4">
                   AI-generated opinions only · <Link href="/methodology" className="underline hover:text-sky-400">read the methodology</Link>
                 </p>
@@ -364,10 +372,16 @@ export default function Home() {
             {filteredResponses.map(r => (
               <div key={r.personaId} className="bg-slate-900 border border-slate-800 rounded-xl p-4 hover:border-slate-700 transition-colors">
                 <div className="flex items-start justify-between gap-3 mb-2">
-                  <div>
-                    <span className="font-semibold text-sm">{r.name}</span>
-                    <span className="text-slate-500 text-xs ml-2">{r.age_bracket} · {r.gender} · {r.ethnicity}</span>
-                    {r.speaks_kazakh && <span className="text-xs ml-1.5 text-amber-600/80">🗣 Kaz</span>}
+                  <div className="flex items-start gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={avatarUrl(r)} alt="" width={44} height={44} loading="lazy"
+                      className="w-11 h-11 rounded-full bg-slate-800 border border-slate-700 flex-shrink-0" />
+                    <div>
+                      <span className="font-semibold text-sm">{r.name}</span>
+                      <span className="text-slate-500 text-xs ml-2">{r.age_bracket} · {r.gender} · {r.ethnicity}</span>
+                      {r.speaks_kazakh && <span className="text-xs ml-1.5 text-amber-600/80">🗣 Kaz</span>}
+                      {r.appearance && <p className="text-xs text-slate-500 italic mt-0.5 leading-snug">{r.appearance}</p>}
+                    </div>
                   </div>
                   <span className="text-base flex-shrink-0">{SENTIMENT_ICONS[r.sentiment]}</span>
                 </div>

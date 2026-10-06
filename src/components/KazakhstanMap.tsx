@@ -95,12 +95,11 @@ export default function KazakhstanMap({ oblastSentiment, onOblastClick, activeOb
         zoom: 4,
         zoomControl: true,
         scrollWheelZoom: true,
-        attributionControl: false,
+        attributionControl: true,
       })
-
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-        attribution: "© OpenStreetMap © CARTO",
-      }).addTo(map)
+      // No basemap tiles: the region shapes are the map. (CARTO tiles now require an API key.)
+      map.attributionControl.setPrefix(false)
+      map.attributionControl.addAttribution("Boundaries © OpenStreetMap contributors")
 
       mapRef.current = map
 
@@ -179,6 +178,9 @@ export default function KazakhstanMap({ oblastSentiment, onOblastClick, activeOb
           box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
         .kaz-tooltip::before { display: none; }
+        .leaflet-container { background: #0b1220; }
+        .leaflet-control-attribution { background: rgba(15,23,42,0.8) !important; color: #64748b !important; font-size: 10px; }
+        .leaflet-control-attribution a { color: #94a3b8 !important; }
         .leaflet-control-zoom { border: 1px solid #334155 !important; }
         .leaflet-control-zoom a { background: #0f172a !important; color: #94a3b8 !important; border-color: #334155 !important; }
         .leaflet-control-zoom a:hover { background: #1e293b !important; color: white !important; }
