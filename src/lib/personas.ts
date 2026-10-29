@@ -185,7 +185,27 @@ function assignOblasts(rng: Rng, pool: Oblast[], count: number): Oblast[] {
   return picked
 }
 
-export function generatePersonas(count: number, filters: PersonaFilters, seed: number): Persona[] {
+// Filters come from the browser, and every value lands in the prompt's <person> blocks,
+// outside the <user_question> guard and the question length cap. Keep known values only.
+function keepKnown(values: unknown, allowed: readonly string[]): string[] | undefined {
+  if (!Array.isArray(values)) return undefined
+  const kept = values.filter((v): v is string => typeof v === "string" && allowed.includes(v))
+  return kept.length ? kept : undefined
+}
+
+export function sanitizeFilters(raw: unknown): PersonaFilters {
+  const f = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>
+  return {
+    oblastIds: keepKnown(f.oblastIds, OBLASTS.map(o => o.id)),
+    ageBrackets: keepKnown(f.ageBrackets, AGE_BRACKETS),
+    genders: keepKnown(f.genders, GENDERS),
+    ethnicities: keepKnown(f.ethnicities, ETHNICITIES),
+    occupations: keepKnown(f.occupations, OCCUPATIONS),
+  }
+}
+
+export function generatePersonas(count: number, rawFilters: PersonaFilters, seed: number): Persona[] {
+  const filters = sanitizeFilters(rawFilters)
   const rng = mulberry32(seed)
   const oblastPool = filters.oblastIds?.length
     ? OBLASTS.filter(o => filters.oblastIds!.includes(o.id))
